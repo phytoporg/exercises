@@ -14,10 +14,24 @@
 #include <limits>
 #include <random>
 
-static void PrintUsage(const std::string& programName)
+//
+// Represents the A and b of Ax = b
+//
+struct ProblemState
 {
-    std::cout << "Usage: " << programName << " <square matrix size> <number of matrices>" << std::endl;
-}
+    std::unique_ptr<double[]> spMatrix;
+    std::unique_ptr<double[]> spB;
+    int                       MatrixSize;
+};
+
+//
+// Forward declarations
+//
+
+static void PrintUsage(const std::string& programName);
+static void InitializeSystem(ProblemState* pState);
+static void PrintSystem(const std::string& prefix, const ProblemState& state);
+static void DoGaussianElimination(ProblemState* pState);
 
 const int NUM_EXPECTED_ARGS = 2;
 int main(int argc, char** ppArgv)
@@ -31,16 +45,86 @@ int main(int argc, char** ppArgv)
     const int MatrixSize = atoi(ppArgv[1]);
     const int NumberOfMatrices = atoi(ppArgv[2]);
 
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(0.0, std::numeric_limits<double>::max());
-
-    std::unique_ptr<double[]> spMatrix(new double[MatrixSize * MatrixSize]);
+    ProblemState state;
+    state.MatrixSize = MatrixSize;
+    state.spMatrix.reset(new double[MatrixSize * MatrixSize]);
+    state.spB.reset(new double[MatrixSize]);
     for (int i = 0; i < NumberOfMatrices; i++)
     {
-        //InitializeMatrix(spMatrix.get(), MatrixSize);
-        //PrintMatrix("Initial System:")
+        InitializeSystem(&state);
+        PrintSystem("Initial System:", state);
 
+        DoGaussianElimination(&state);
+
+        PrintSystem("Solved System:", state);
     }
 
     return 0;
+}
+
+static void PrintUsage(const std::string& programName)
+{
+    std::cout << "Usage: " << programName << " <square matrix size> <number of matrices>" << std::endl;
+}
+
+static double& GetElement(double* pMatrix, int r, int c, int stride)
+{
+    return pMatrix[c + r * stride];
+}
+
+static void InitializeSystem(ProblemState* pState)
+{
+    //
+    // Randomly initialize with a wide range over the entire
+    // span of doubles.
+    //
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(
+        -20000.0,
+        20000.0
+        //std::numeric_limits<double>::min(),
+        //std::numeric_limits<double>::max()
+    );
+
+    for (int j = 0; j < pState->MatrixSize; j++)
+    {
+        pState->spB[j] = distribution(generator);
+        for (int i = 0; i < pState->MatrixSize; i++)
+        {
+            double& element = GetElement(pState->spMatrix.get(), i, j, pState->MatrixSize);
+            element = distribution(generator);
+        }
+    }
+}
+
+static void PrintSystem(const std::string& prefix, const ProblemState& state)
+{
+    std::cout << prefix << std::endl;
+
+    for (int j = 0; j < state.MatrixSize; j++)
+    {
+        for (int i = 0; i < state.MatrixSize; i++)
+        {
+            const double& element = 
+                GetElement(
+                    state.spMatrix.get(), i, j, state.MatrixSize
+                );
+
+            std::cout << element << " ";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+    for (int j = 0; j < state.MatrixSize; j++)
+    {
+        std::cout << state.spB[j] << "\n";
+    }
+
+    std::cout << std::endl;
+}
+
+static void DoGaussianElimination(ProblemState* pState)
+{
+    // TODO
 }
