@@ -3,6 +3,13 @@
 #include <memory>
 
 //
+// TODO: pivot right now implemented as-is would swap rows
+// within the matrix. Consider augmenting the ProblemState s.t.
+// a pivot vector would provide the corrected row order within
+// the matrix.
+//
+
+//
 // Represents the A and b of Ax = b
 //
 struct ProblemState
