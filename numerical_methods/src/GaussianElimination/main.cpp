@@ -14,15 +14,7 @@
 #include <limits>
 #include <random>
 
-//
-// Represents the A and b of Ax = b
-//
-struct ProblemState
-{
-    std::unique_ptr<double[]> spMatrix;
-    std::unique_ptr<double[]> spB;
-    int                       MatrixSize;
-};
+#include "GaussianElimination.h"
 
 //
 // Forward declarations

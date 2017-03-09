@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\GaussianElimination\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\GaussianElimination\GaussianElimination.h" />
+  </ItemGroup>
 </Project>
