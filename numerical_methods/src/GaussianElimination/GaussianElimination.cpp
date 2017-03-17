@@ -2,6 +2,7 @@
 #include "ProblemState.h"
 
 #include <limits>
+#include <cassert>
 
 void MaybePivot(ProblemState* pState, size_t rowIndex)
 {
@@ -110,6 +111,26 @@ bool ForwardSubstitution(ProblemState* pState, size_t rowIndex)
 
 bool BackSubstitution(ProblemState* pState, size_t rowIndex)
 {
-    // TODO
-    return false;
+    //
+    // For each row starting at the bottom, clear out the remaining
+    // off-diagonal elements via elementary row operations.
+    //
+    // We're assuming here that all remaining diagonal entries are 
+    // unitary.
+    //
+    MatrixIndexer mi(pState); // maybe just get rid of this?
+
+    double *pColEntry = &pState->spMatrix[mi.Index(rowIndex, rowIndex)];
+    const double DiagEntry = *pColEntry;
+    assert(abs(DiagEntry - 1.0) <= std::numeric_limits<double>::epsilon());
+    for (int r = static_cast<int>(rowIndex) - 1; r >= 0; --r)
+    {
+        pColEntry--;
+
+        const double ToSubtract = DiagEntry * *pColEntry;
+        pState->spB[r] -= ToSubtract;
+        *pColEntry     -= ToSubtract;
+    }
+
+    return true;
 }

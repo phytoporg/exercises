@@ -4,8 +4,8 @@
 #include <random>
 
 //
-// If we generate a square matrix s.t. $\left|a_ii\right| <= R_i$ where 
-// $R_i = \sum_{i \neq j} \left| a_ij$ \right|$, that matrix is invertible. 
+// If we generate a square matrix s.t. $\left|a_{ii}\right| <= R_i$ where 
+// $R_i = \sum_{j \neq i} \left| a_{ij} \right|$, that matrix is invertible. 
 //
 void InitializeSystem(ProblemState* pState)
 {
@@ -22,10 +22,10 @@ void InitializeSystem(ProblemState* pState)
     //
     // Populate the rows
     //
-    for (int i = 0; i < pState->MatrixSize; i++)
+    for (size_t i = 0; i < pState->MatrixSize; i++)
     {
         pState->spB[i] = distribution(generator);
-        for (int j = 0; j < pState->MatrixSize; j++)
+        for (size_t j = 0; j < pState->MatrixSize; j++)
         {
             pState->spMatrix[mi.Index(j, i)] = distribution(generator);
         }

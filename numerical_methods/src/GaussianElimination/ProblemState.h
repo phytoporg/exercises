@@ -9,7 +9,7 @@ struct ProblemState
 {
     std::unique_ptr<double[]> spMatrix;
     std::unique_ptr<double[]> spB;
-    int                       MatrixSize;
+    size_t                    MatrixSize;
 };
 
 //

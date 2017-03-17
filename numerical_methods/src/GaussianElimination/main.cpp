@@ -74,9 +74,9 @@ static void PrintSystem(const std::string& prefix, const ProblemState& state)
 {
     std::cout << prefix << std::endl;
 
-    for (int j = 0; j < state.MatrixSize; j++)
+    for (size_t j = 0; j < state.MatrixSize; j++)
     {
-        for (int i = 0; i < state.MatrixSize; i++)
+        for (size_t i = 0; i < state.MatrixSize; i++)
         {
             const double& element = 
                 GetElement(
@@ -89,7 +89,7 @@ static void PrintSystem(const std::string& prefix, const ProblemState& state)
     }
 
     std::cout << "\n";
-    for (int j = 0; j < state.MatrixSize; j++)
+    for (size_t j = 0; j < state.MatrixSize; j++)
     {
         std::cout << state.spB[j] << "\n";
     }
@@ -110,16 +110,15 @@ static bool DoGaussianElimination(ProblemState* pState)
 
     PrintSystem("After forward sub.", *pState);
 
-    /*
-    Not yet implemented
-    for (size_t r = 0; r < pState->MatrixSize; r++)
+    for (int r = pState->MatrixSize - 1; r >= 0; r--)
     {
-        if (!BackSubstitution(pState, r))
+        if (!BackSubstitution(pState, static_cast<size_t>(r)))
         {
             return false;
         }
     }
-    */
+
+    PrintSystem("After backwards sub.", *pState);
 
     return true;
 }
