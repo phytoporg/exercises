@@ -101,6 +101,7 @@ bool ForwardSubstitution(ProblemState* pState, size_t rowIndex)
         for (size_t c = 0; c < pState->MatrixSize - rowIndex; c++)
         {
             *pThisRowDiagCol -= EliminationValue * pCurrentRowDiag[c];
+            ++pThisRowDiagCol;
         }
 
         pState->spB[r] -= EliminationValue * pState->spB[rowIndex];
@@ -125,7 +126,7 @@ bool BackSubstitution(ProblemState* pState, size_t rowIndex)
     assert(abs(DiagEntry - 1.0) <= std::numeric_limits<double>::epsilon());
     for (int r = static_cast<int>(rowIndex) - 1; r >= 0; --r)
     {
-        pColEntry--;
+        pColEntry -= pState->MatrixSize;
 
         const double ToSubtract = DiagEntry * *pColEntry;
         pState->spB[r] -= ToSubtract;

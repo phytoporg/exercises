@@ -65,24 +65,16 @@ static void PrintUsage(const std::string& programName)
     std::cout << "Usage: " << programName << " <square matrix size> <number of matrices>" << std::endl;
 }
 
-static double& GetElement(double* pMatrix, int r, int c, int stride)
-{
-    return pMatrix[c + r * stride];
-}
-
 static void PrintSystem(const std::string& prefix, const ProblemState& state)
 {
     std::cout << prefix << std::endl;
 
-    for (size_t j = 0; j < state.MatrixSize; j++)
+    MatrixIndexer mi(&state);
+    for (size_t i = 0; i < state.MatrixSize; i++)
     {
-        for (size_t i = 0; i < state.MatrixSize; i++)
+        for (size_t j = 0; j < state.MatrixSize; j++)
         {
-            const double& element = 
-                GetElement(
-                    state.spMatrix.get(), i, j, state.MatrixSize
-                );
-
+            const double& element = state.spMatrix[mi.Index(i, j)];
             std::cout << element << " ";
         }
         std::cout << "\n";
