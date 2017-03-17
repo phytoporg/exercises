@@ -12,18 +12,18 @@
 #include <memory>
 
 #include <limits>
-#include <random>
 
 #include "GaussianElimination.h"
+#include "InitializeSystem.h"
+#include "ProblemState.h"
 
 //
 // Forward declarations
 //
 
 static void PrintUsage(const std::string& programName);
-static void InitializeSystem(ProblemState* pState);
 static void PrintSystem(const std::string& prefix, const ProblemState& state);
-static void DoGaussianElimination(ProblemState* pState);
+static bool DoGaussianElimination(ProblemState* pState);
 
 const int NUM_EXPECTED_ARGS = 2;
 int main(int argc, char** ppArgv)
@@ -41,15 +41,21 @@ int main(int argc, char** ppArgv)
     state.MatrixSize = MatrixSize;
     state.spMatrix.reset(new double[MatrixSize * MatrixSize]);
     state.spB.reset(new double[MatrixSize]);
-    for (int i = 0; i < NumberOfMatrices; i++)
+
+    int i = 0;
+    do
     {
         InitializeSystem(&state);
         PrintSystem("Initial System:", state);
 
-        DoGaussianElimination(&state);
+        //
+        // Continue until we have a valid matrix.
+        //
+        if (!DoGaussianElimination(&state)) { continue; }
 
         PrintSystem("Solved System:", state);
-    }
+        ++i;
+    } while (i < NumberOfMatrices);
 
     return 0;
 }
@@ -62,31 +68,6 @@ static void PrintUsage(const std::string& programName)
 static double& GetElement(double* pMatrix, int r, int c, int stride)
 {
     return pMatrix[c + r * stride];
-}
-
-static void InitializeSystem(ProblemState* pState)
-{
-    //
-    // Randomly initialize with a wide range over the entire
-    // span of doubles.
-    //
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(
-        -20000.0,
-        20000.0
-        //std::numeric_limits<double>::min(),
-        //std::numeric_limits<double>::max()
-    );
-
-    for (int j = 0; j < pState->MatrixSize; j++)
-    {
-        pState->spB[j] = distribution(generator);
-        for (int i = 0; i < pState->MatrixSize; i++)
-        {
-            double& element = GetElement(pState->spMatrix.get(), i, j, pState->MatrixSize);
-            element = distribution(generator);
-        }
-    }
 }
 
 static void PrintSystem(const std::string& prefix, const ProblemState& state)
@@ -116,7 +97,29 @@ static void PrintSystem(const std::string& prefix, const ProblemState& state)
     std::cout << std::endl;
 }
 
-static void DoGaussianElimination(ProblemState* pState)
+static bool DoGaussianElimination(ProblemState* pState)
 {
-    // TODO
+    for (size_t r = 0; r < pState->MatrixSize; r++)
+    {
+        MaybePivot(pState, r);
+        if (!ForwardSubstitution(pState, r))
+        {
+            return false;
+        }
+    }
+
+    PrintSystem("After forward sub.", *pState);
+
+    /*
+    Not yet implemented
+    for (size_t r = 0; r < pState->MatrixSize; r++)
+    {
+        if (!BackSubstitution(pState, r))
+        {
+            return false;
+        }
+    }
+    */
+
+    return true;
 }

@@ -118,10 +118,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\GaussianElimination\GaussianElimination.cpp" />
+    <ClCompile Include="..\..\src\GaussianElimination\InitializeSystem.cpp" />
     <ClCompile Include="..\..\src\GaussianElimination\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GaussianElimination\GaussianElimination.h" />
+    <ClInclude Include="..\..\src\GaussianElimination\ProblemState.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\GaussianElimination\InitializeSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
