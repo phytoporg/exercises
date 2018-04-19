@@ -37,8 +37,6 @@ def cnn_model(features, labels, mode):
     # Pooling layer 2
     pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
 
-    print("pool2 shape = {}".format(pool2.shape))
-
     # Dense layer
     _, w, h, _ = pool2.shape
     pool2_flat = tf.reshape(pool2, [-1, w * h * 64])
@@ -78,7 +76,7 @@ def cnn_model(features, labels, mode):
     # Configure training op
     #
     if mode == tf.estimator.ModeKeys.TRAIN:
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.0001)
         train_op = optimizer.minimize(
             loss=loss,
             global_step=tf.train.get_global_step())
@@ -132,9 +130,12 @@ def main(args):
     num_training = int(num_samples * training_ratio)
     indices = np.random.shuffle([i for i in range(num_samples)])
 
-    training_labels, training_images = labels[:num_training].reshape((-1,)), images[:num_training].reshape((-1, 900))
-    testing_labels, testing_images = labels[num_training + 1 : -1].reshape((-1,)), images[num_training + 1 : -1].reshape((-1, 900))
+    labels[:] = labels[indices]
+    images[:] = images[indices]
 
+    training_labels, training_images = labels[:num_training].reshape((-1,)), images[:num_training].reshape((-1, 900))
+    testing_labels, testing_images = labels[num_training:].reshape((-1,)), images[num_training:].reshape((-1, 900))
+    
     tensors_to_log = { "probabilities" : "softmax_tensor" }
     logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
 
@@ -142,7 +143,7 @@ def main(args):
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
         x={"x" : training_images},
         y=training_labels,
-        batch_size=50,
+        batch_size=100,
         num_epochs=None,
         shuffle=True
     )
