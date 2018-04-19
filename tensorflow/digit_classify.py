@@ -9,6 +9,7 @@ import cv2
 #
 def cnn_model(features, labels, mode):
     print(features["x"].shape)
+    #input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
     input_layer = tf.reshape(features["x"], [-1, 30, 30, 1])
     print(input_layer)
 
@@ -69,13 +70,15 @@ def cnn_model(features, labels, mode):
     #
     # Compute loss - TODO: onehot encoding stuff
     #
-    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+    loss = tf.losses.softmax_cross_entropy(onehot_labels=onehot_labels, logits=logits)
+
 
     #
     # Configure training op
     #
     if mode == tf.estimator.ModeKeys.TRAIN:
-        optimizer = tf.train.GradientDescentOPtimizer(learning_rate=0.001)
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
         train_op = optimizer.minimize(
             loss=loss,
             global_step=tf.train.get_global_step())
@@ -109,8 +112,7 @@ def load_digits(path):
                 full_path = os.path.join(root, f)
                 img = cv2.resize(cv2.imread(full_path), (30, 30))
                 binary_image = cv2.inRange(img, np.array([50, 50, 50]), np.array([255, 255, 255]))
-                np.asarray(binary_image)
-                digits.append(np.asarray(binary_image, dtype=np.float32).reshape(30*30))
+                digits.append(np.asarray(binary_image, dtype=np.float32))
 
     return (np.array(labels), np.array(digits))
 
@@ -118,12 +120,6 @@ def main(args):
     if not os.path.exists(args.root_dir):
         print("{} is not a valid root path! Bailing.".format(args.root_dir))
         exit(-1)
-
-    #mnist = tf.contrib.learn.datasets.load_dataset("mnist")
-    #train_data = mnist.train.images # Returns np.array
-    #print("!!!!!!!!!!!! {}".format(train_data.shape))
-    #train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
-    #print("!!!!!!!!!!!! {}".format(train_labels.shape))
 
     tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -138,8 +134,9 @@ def main(args):
 
     labels = labels[indices]
     images = images[indices]
+    print("SHAPE!!!", images.shape)
 
-    training_labels, training_images = labels[:num_training], images[:num_training]
+    training_labels, training_images = labels[:num_training].reshape((-1,)), images[:num_training].reshape((-1, 900))
     testing_labels, testing_images = labels[num_training + 1 : -1], images[num_training + 1 : -1]
 
     tensors_to_log = { "probabilities" : "softmax_tensor" }
@@ -147,6 +144,8 @@ def main(args):
 
     classifier = tf.estimator.Estimator(model_fn=cnn_model, model_dir=args.model_out_path)
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
+        #x={"x" : train_data},
+        #y=train_labels,
         x={"x" : training_images},
         y=training_labels,
         batch_size=50,
