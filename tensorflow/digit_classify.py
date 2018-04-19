@@ -94,7 +94,7 @@ def cnn_model(features, labels, mode):
             )
     }
 
-    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metrics_ops=eval_metrics_ops)
+    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 def load_digits(path):
     labels = []
@@ -130,32 +130,27 @@ def main(args):
     training_ratio = .80
     num_samples = len(labels)
     num_training = int(num_samples * training_ratio)
-    indices = np.random.shuffle([i for i in range(num_training)])
-
-    labels = labels[indices]
-    images = images[indices]
-    print("SHAPE!!!", images.shape)
+    indices = np.random.shuffle([i for i in range(num_samples)])
 
     training_labels, training_images = labels[:num_training].reshape((-1,)), images[:num_training].reshape((-1, 900))
-    testing_labels, testing_images = labels[num_training + 1 : -1], images[num_training + 1 : -1]
+    testing_labels, testing_images = labels[num_training + 1 : -1].reshape((-1,)), images[num_training + 1 : -1].reshape((-1, 900))
 
     tensors_to_log = { "probabilities" : "softmax_tensor" }
     logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
 
     classifier = tf.estimator.Estimator(model_fn=cnn_model, model_dir=args.model_out_path)
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
-        #x={"x" : train_data},
-        #y=train_labels,
         x={"x" : training_images},
         y=training_labels,
         batch_size=50,
         num_epochs=None,
         shuffle=True
     )
-    classifier.train(input_fn=train_input_fn, steps=20000, hooks=[logging_hook])
+
+    classifier.train(input_fn=train_input_fn, steps=50000, hooks=[logging_hook])
 
     eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-        x={"x", testing_images},
+        x={"x" : testing_images},
         y=testing_labels,
         num_epochs=1,
         shuffle=False
