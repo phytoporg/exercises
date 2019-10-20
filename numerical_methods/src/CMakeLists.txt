@@ -1,0 +1,3 @@
+add_subdirectory(GaussianElimination)
+add_subdirectory(AutoDifferentiation)
+add_subdirectory(test)

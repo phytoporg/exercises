@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <cassert>
+#include <cstring>
 
 void MaybePivot(ProblemState* pState, size_t rowIndex)
 {

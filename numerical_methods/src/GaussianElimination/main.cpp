@@ -62,7 +62,10 @@ int main(int argc, char** ppArgv)
 
 static void PrintUsage(const std::string& programName)
 {
-    std::cout << "Usage: " << programName << " <square matrix size> <number of matrices>" << std::endl;
+    std::cout << "Usage: " 
+              << programName 
+              << " <square matrix size> <number of matrices>" 
+              << std::endl;
 }
 
 static void PrintSystem(const std::string& prefix, const ProblemState& state)
