@@ -85,6 +85,11 @@ namespace Neo
             return m_v[i];
         }
 
+        T& operator[](size_t i)
+        {
+            return m_v[i];
+        }
+
     private:
         T m_v[N];
     };
