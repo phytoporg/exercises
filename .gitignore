@@ -253,3 +253,6 @@ paket-files/
 
 # Vim
 *.swp
+
+# cmake
+build/
